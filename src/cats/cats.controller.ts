@@ -20,20 +20,26 @@ import { SaveValidationPipe } from '../pipe/validation.pipe';
 import { saveCatSchema } from '../schema/cats.save.schema';
 import { CatsDto } from 'src/dto/cats.dto';
 import { AuthGuard } from 'src/auth/auth';
-import { Roles } from 'src/auth/roles.decorator';
+import { Roles } from 'src/decorators/roles.decorator';
 import { Reflector } from '@nestjs/core';
+import { ConfigService, InjectConfig } from 'nestjs-config';
 @Controller('cats')
 @UseInterceptors(LoggingInterceptor)
 export class CatsController {
   constructor(
+    @InjectConfig() private readonly config: ConfigService,
     private readonly catsService: CatsService,
     private litterCats: LitteCatsService,
-  ) {}
+  ) {
+    console.log('###config=', config);
+    this.config = config;
+  }
 
   @Get('/')
-  @UseGuards(new AuthGuard(new Reflector()))
+  @UseGuards(AuthGuard)
   @Roles('admin')
   getCats() {
+    console.log('@@@@@@=', this.config);
     return this.catsService.getCats();
   }
 
